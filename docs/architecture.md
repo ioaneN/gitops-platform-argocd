@@ -52,3 +52,17 @@ Bootstrap-related manifests and installation guidance will live here, especially
 Phase 1 establishes the local Kubernetes foundation, installs Argo CD, and prepares the repository structure for future GitOps bootstrapping.
 
 At this stage, the repository is intentionally simple and focused on clean structure rather than full deployment logic.
+
+
+## Phase 2
+
+Phase 2 introduces the App of Apps bootstrap model.
+
+A root Argo CD Application is manually applied once and points to the `clusters/dev` path in Git. That path contains child Argo CD Application definitions, allowing Argo CD to begin managing resources from the repository itself.
+
+This creates the first real GitOps control loop in the project and prepares the repository for later expansion into:
+- sample applications
+- multiple environments
+- ApplicationSets
+- platform services
+- RBAC and project boundaries

@@ -51,3 +51,22 @@ gitops-argocd-platform/
 ├── apps/
 ├── platform/
 └── scripts/
+
+
+## Phase 2: Root App / App of Apps bootstrap
+
+Phase 2 introduces the first GitOps bootstrap layer using Argo CD's App of Apps pattern.
+
+What was added:
+- a manually applied root Argo CD Application
+- a `clusters/dev` GitOps entrypoint
+- the first child Application for dev bootstrap structure
+- a clean foundation for future environment expansion
+
+Bootstrap flow:
+1. Argo CD is installed manually
+2. `bootstrap/root-app.yaml` is applied once
+3. Argo CD syncs `clusters/dev`
+4. child Applications are created from Git
+
+This establishes the core GitOps control pattern for the project.
