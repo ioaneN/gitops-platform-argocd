@@ -51,8 +51,7 @@ gitops-argocd-platform/
 ├── apps/
 ├── platform/
 └── scripts/
-
-
+```
 ## Phase 2: Root App / App of Apps bootstrap
 
 Phase 2 introduces the first GitOps bootstrap layer using Argo CD's App of Apps pattern.
@@ -70,3 +69,15 @@ Bootstrap flow:
 4. child Applications are created from Git
 
 This establishes the core GitOps control pattern for the project.
+
+## Phase 3: Sample application Helm charts
+
+Phase 3 introduces the first reusable Helm chart for workloads managed by the GitOps platform.
+
+What was added:
+- a `sample-app` Helm chart under `apps/`
+- Helm templates for Namespace, Deployment, and Service
+- a reusable values-based structure for future environment promotion
+- a clean packaging model for Argo CD application delivery in later phases
+
+This phase establishes the application packaging layer that will be deployed into dev in the next phase.
