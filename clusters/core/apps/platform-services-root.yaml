@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-services-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ioaneN/gitops-platform-argocd.git
+    targetRevision: master
+    path: platform/services
+  destination:
+    name: in-cluster
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -159,3 +159,21 @@ This makes it easier to:
    - dev → `values-dev.yaml`
    - stage → `values-stage.yaml`
    - prod → `values-prod.yaml`
+
+
+## Phase 7: Platform services layer
+
+Phase 7 introduces the first shared cluster service layer managed through Argo CD.
+
+What was added:
+
+* a new cluster-level `platform-services-root` Application under `clusters/core/apps`
+* a shared `platform/services` GitOps path for cluster-wide services
+* the first platform service: `cert-manager`
+* separation between environment workloads and shared cluster services
+
+Why this matters:
+
+* application workloads still live under `platform/dev`, `platform/stage`, and `platform/prod`
+* shared services should be installed once per cluster, not once per environment
+* this creates a cleaner production-style GitOps structure for later phases like sync waves, RBAC, secrets, and monitoring
