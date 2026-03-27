@@ -1,199 +1,241 @@
-# GitOps Argo CD Platform
+# GitOps Platform with Argo CD
 
-A senior-level GitOps portfolio project built with Kubernetes, Argo CD, Helm, and multi-environment GitOps deployment patterns.
+A production-style GitOps platform project built with Argo CD, Helm, App of Apps, and ApplicationSets.
 
-## Project overview
+This repository demonstrates how to structure and manage Kubernetes application delivery across multiple environments using GitOps principles. It is designed as a portfolio project to reflect senior-level DevOps and platform engineering practices, with a focus on environment separation, reusable deployment patterns, and scalable repository structure.
 
-This repository is designed to demonstrate how to build a production-style GitOps platform where Git is the source of truth and Argo CD continuously reconciles the Kubernetes cluster to the desired state.
+## Project Goals
 
-The project will evolve phase by phase and will include:
+The goal of this project is to build a clean, extensible GitOps platform that shows how Argo CD can be used to manage:
 
-- Argo CD as the GitOps controller
-- App of Apps bootstrap pattern
-- Helm-based application packaging
-- separate dev, stage, and prod environments
-- ApplicationSets for scalable deployment management
-- platform services managed through GitOps
-- sync waves and dependency ordering
-- Argo CD Projects and RBAC boundaries
-- secrets and configuration management
-- monitoring and operational visibility
+- multi-environment deployments
+- reusable Helm-based applications
+- App of Apps bootstrapping
+- ApplicationSet-based templated delivery
+- platform service layering
+- sync-wave-based ordering and dependency control
 
-## Planned phases
+This repository is intentionally structured to look and feel like a real GitOps platform foundation rather than a basic Argo CD demo.
 
-1. Foundation / repo structure / local cluster / Argo CD install
-2. Root App / App of Apps bootstrap
-3. Sample application Helm charts
-4. Dev environment deployment
-5. Stage and prod environments
-6. ApplicationSet implementation
-7. Platform services layer
-8. Sync waves / ordering / dependency flow
-9. Projects and RBAC
-10. Secrets and configuration management
-11. Monitoring and operational visibility
-12. Docs / polish / production readiness
+---
 
-## Repository structure
+## Architecture Overview
+
+The platform follows a GitOps pull-based model:
+
+1. Kubernetes runs Argo CD inside the cluster
+2. Argo CD watches this Git repository
+3. Desired state is defined in Git
+4. Argo CD continuously reconciles cluster state with Git state
+5. Applications are deployed through Helm and organized by environment
+
+### Core patterns used
+
+- **GitOps** as the deployment operating model
+- **Argo CD App of Apps** for platform bootstrapping
+- **Helm** for reusable application packaging
+- **ApplicationSets** for templated multi-environment app generation
+- **Sync Waves** for ordering dependent resources
+- **Environment separation** for dev, stage, and prod
+
+---
+
+## Repository Structure
 
 ```text
-gitops-argocd-platform/
-├── README.md
-├── docs/
-│   └── architecture.md
+.
+├── apps/
+│   └── sample-app/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       ├── values-dev.yaml
+│       ├── values-stage.yaml
+│       ├── values-prod.yaml
+│       └── templates/
+│
 ├── bootstrap/
-│   └── argocd/
-│       └── install.md
+│   └── root-app.yaml
+│
 ├── clusters/
+│   ├── dev/
+│   │   └── apps/
+│   ├── stage/
+│   │   └── apps/
+│   └── prod/
+│       └── apps/
+│
+├── platform/
+│   ├── bootstrap/
+│   │   ├── stage/
+│   │   └── prod/
 │   ├── dev/
 │   ├── stage/
 │   └── prod/
-├── apps/
-├── platform/
-└── scripts/
+│
+└── README.md
 ```
-## Phase 2: Root App / App of Apps bootstrap
 
-Phase 2 introduces the first GitOps bootstrap layer using Argo CD's App of Apps pattern.
+## Directory Purpose
 
-What was added:
-- a manually applied root Argo CD Application
-- a `clusters/dev` GitOps entrypoint
-- the first child Application for dev bootstrap structure
-- a clean foundation for future environment expansion
+### `apps/`
+Contains deployable Helm charts, such as the sample application.
 
-Bootstrap flow:
-1. Argo CD is installed manually
-2. `bootstrap/root-app.yaml` is applied once
-3. Argo CD syncs `clusters/dev`
-4. child Applications are created from Git
+### `bootstrap/`
+Contains the root Argo CD Application used to bootstrap the platform.
 
-This establishes the core GitOps control pattern for the project.
+### `clusters/`
+Contains environment-specific Argo CD Applications that point Argo CD to each environment's platform layer.
 
-## Phase 3: Sample application Helm charts
+### `platform/`
+Contains environment-level GitOps definitions, including ApplicationSets and bootstrap flows for stage and prod.
 
-Phase 3 introduces the first reusable Helm chart for workloads managed by the GitOps platform.
+## Implemented Phases
 
-What was added:
-- a `sample-app` Helm chart under `apps/`
-- Helm templates for Namespace, Deployment, and Service
-- a reusable values-based structure for future environment promotion
-- a clean packaging model for Argo CD application delivery in later phases
+This project was built phase by phase:
 
-This phase establishes the application packaging layer that will be deployed into dev in the next phase.
+- Foundation / repo structure / local cluster / Argo CD install
+- Root App / App of Apps bootstrap
+- Sample application Helm charts
+- Dev environment deployment
+- Stage and prod environments
+- ApplicationSet implementation
+- Platform services layer
+- Sync waves / ordering / dependency flow
+- Docs / polish / production readiness
 
-## Phase 4: Dev environment deployment
+> Note: Governance, secrets management, and operational monitoring are intentionally left as future extensions to keep this version focused, publishable, and portfolio-ready.
 
-Phase 4 deploys the first real workload into the dev environment through Argo CD.
+## Environment Model
 
-What was added:
-- a dev-specific Helm values file for the sample application
-- a child Argo CD Application in `platform/dev`
-- automated sync for the sample app into the `sample-app` namespace
+The repository is structured around three environments:
 
-Deployment flow:
-1. `root-app` syncs `clusters/dev`
-2. `platform-root` is created from `clusters/dev/apps/platform-root.yaml`
-3. `platform-root` reads the `platform/dev` path
-4. `sample-app-dev` is created and deploys the Helm chart from `apps/sample-app`
+- dev
+- stage
+- prod
 
-This phase establishes the first end-to-end GitOps application deployment in the dev environment.
+Each environment is managed independently through GitOps definitions, while still following the same overall platform structure.
 
+This reflects a common real-world pattern:
 
-## Phase 5: Stage and prod environments
+- dev for rapid iteration
+- stage for pre-production validation
+- prod for stable production releases
 
-Phase 5 expands the GitOps platform from a single dev environment to a multi-environment structure with separate stage and prod delivery paths.
+## Bootstrapping Flow
 
-What was added:
+The platform is bootstrapped through a root Argo CD Application.
 
-- `clusters/stage` and `clusters/prod` GitOps entrypoints
-- `platform/stage` and `platform/prod` Argo CD Applications
-- `values-stage.yaml` and `values-prod.yaml` for Helm-based environment configuration
-- isolated namespaces for dev, stage, and prod deployments in the same cluster
-- root app expansion from `clusters/dev` to the full `clusters/` hierarchy
+### Flow
 
-Environment layout:
+1. Apply the root app
+2. Root app scans the `clusters/` directory
+3. Environment applications are created
+4. Each environment points to its platform definitions
+5. Platform definitions deploy application sets and workloads
+6. Argo CD reconciles everything continuously
 
-- `dev` → `sample-app-dev`
-- `stage` → `sample-app-stage`
-- `prod` → `sample-app-prod`
+This creates a scalable and declarative deployment model where Git is the source of truth.
 
-Bootstrap flow after phase 5:
+## Helm Usage
 
-1. `bootstrap/root-app.yaml` is applied once
-2. Argo CD scans `clusters/`
-3. Argo CD creates child Applications for dev, stage, and prod
-4. each environment points to its own platform path
-5. each platform Application deploys the same Helm chart with different values files
+The sample application is packaged as a Helm chart and uses separate values files for different environments.
 
-This phase establishes the multi-environment GitOps structure that will later be simplified with ApplicationSets in phase 6.
+Examples:
 
-## Phase 6: ApplicationSet implementation
+- `values-dev.yaml`
+- `values-stage.yaml`
+- `values-prod.yaml`
 
-Phase 6 replaces repeated per-environment Argo CD Application manifests with ApplicationSet-based generation.
+This pattern keeps application templates reusable while allowing each environment to control its own settings.
 
-### What changed
+## ApplicationSet Usage
 
-- added `kustomization.yaml` files to `platform/dev`, `platform/stage`, and `platform/prod`
-- replaced manual environment Application manifests with environment-specific `ApplicationSet` resources
-- kept the existing root app structure unchanged
-- continued using environment-specific Helm values files for dev, stage, and prod
+ApplicationSets are used to generate environment-specific applications from a shared template.
 
-### Why this matters
+This avoids duplication and makes the repository more scalable as more applications or environments are added later.
 
-Before this phase, each environment had its own manually written Argo CD `Application` file.
+Benefits of using ApplicationSets here:
 
-Now each environment uses an `ApplicationSet`, which is a more scalable pattern and better matches production-style GitOps design.
+- less YAML duplication
+- consistent application definitions
+- easier multi-environment expansion
+- cleaner GitOps structure
 
-This makes it easier to:
-- expand to more applications later
-- standardize environment deployment patterns
-- reduce repeated Argo CD application definitions
+## Sync Waves
 
-### Current flow
+Sync waves are used to control deployment order.
 
-1. cluster root app points to `platform/<env>`
-2. `platform/<env>/kustomization.yaml` includes `sample-appset.yaml`
-3. the `ApplicationSet` generates the Argo CD Application for that environment
-4. Helm uses the correct values file:
-   - dev → `values-dev.yaml`
-   - stage → `values-stage.yaml`
-   - prod → `values-prod.yaml`
+This is important when some resources should be created before others, such as:
 
+- platform bootstrap components before apps
+- namespaces before workloads
+- dependencies before dependent applications
 
-## Phase 7: Platform services layer
+This project includes sync-wave-based ordering to reflect real GitOps dependency management patterns.
 
-Phase 7 introduces the first shared cluster service layer managed through Argo CD.
+## Why This Project Is Valuable
 
-What was added:
+This project demonstrates more than just Argo CD installation.
 
-* a new cluster-level `platform-services-root` Application under `clusters/core/apps`
-* a shared `platform/services` GitOps path for cluster-wide services
-* the first platform service: `cert-manager`
-* separation between environment workloads and shared cluster services
+It shows how to think about:
 
-Why this matters:
+- GitOps repository design
+- multi-environment delivery
+- scalable Argo CD structure
+- reusable Helm packaging
+- deployment ordering
+- platform-oriented Kubernetes delivery
 
-* application workloads still live under `platform/dev`, `platform/stage`, and `platform/prod`
-* shared services should be installed once per cluster, not once per environment
-* this creates a cleaner production-style GitOps structure for later phases like sync waves, RBAC, secrets, and monitoring
+This makes it a strong portfolio project for DevOps, Platform Engineer, and SRE roles.
 
-## Phase 8: Sync waves / ordering / dependency flow
+## What Could Be Added Next
 
-Phase 8 introduces explicit deployment ordering between environment bootstrap resources and workload applications.
+Future improvements for a more production-complete version:
 
-What was added:
+- Argo CD Projects and RBAC
+- External Secrets or sealed secrets integration
+- Prometheus / Grafana / Loki observability stack
+- policy enforcement with Kyverno or OPA
+- image updater automation
+- notifications and alerting
+- multi-cluster expansion
+- CI validation for GitOps manifests
 
-- a `platform-bootstrap` Application for each environment
-- environment-specific namespace bootstrap manifests under `platform/bootstrap/`
-- sync-wave annotations to make dependency ordering visible
-- removal of `CreateNamespace=true` from generated sample app Applications so namespace creation is handled by the bootstrap layer
+## Local Usage
 
-Dependency flow:
+### Prerequisites
 
-1. root app syncs the cluster entrypoints
-2. platform root syncs the environment platform path
-3. `platform-bootstrap-*` runs first with sync wave `-10`
-4. ApplicationSet-generated sample apps run after with sync wave `10`
+- Kubernetes cluster (Minikube, Kind, or similar)
+- `kubectl`
+- Helm
+- Argo CD installed in the cluster
 
-This phase establishes a more production-style GitOps reconciliation model where foundational environment resources are applied before application workloads.
+### Apply the root app
+
+```bash
+kubectl apply -f bootstrap/root-app.yaml
+```
+
+### Check Argo CD applications
+
+```bash
+kubectl get applications -n argocd
+```
+
+### Render Helm chart locally
+
+```bash
+helm template sample-app apps/sample-app
+```
+
+## Skills Demonstrated
+
+- Kubernetes
+- Argo CD
+- GitOps
+- Helm
+- ApplicationSets
+- App of Apps pattern
+- Sync waves
+- environment-based deployment design
+- repository architecture for platform engineering
