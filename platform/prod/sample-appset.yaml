@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sample-app-prod
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - env: prod
+            namespace: sample-app-prod
+            valuesFile: values-prod.yaml
+  template:
+    metadata:
+      name: 'sample-app-{{ .env }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/ioaneN/gitops-platform-argocd.git
+        targetRevision: master
+        path: apps/sample-app
+        helm:
+          valueFiles:
+            - '{{ .valuesFile }}'
+      destination:
+        name: in-cluster
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

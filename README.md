@@ -127,3 +127,35 @@ Bootstrap flow after phase 5:
 5. each platform Application deploys the same Helm chart with different values files
 
 This phase establishes the multi-environment GitOps structure that will later be simplified with ApplicationSets in phase 6.
+
+## Phase 6: ApplicationSet implementation
+
+Phase 6 replaces repeated per-environment Argo CD Application manifests with ApplicationSet-based generation.
+
+### What changed
+
+- added `kustomization.yaml` files to `platform/dev`, `platform/stage`, and `platform/prod`
+- replaced manual environment Application manifests with environment-specific `ApplicationSet` resources
+- kept the existing root app structure unchanged
+- continued using environment-specific Helm values files for dev, stage, and prod
+
+### Why this matters
+
+Before this phase, each environment had its own manually written Argo CD `Application` file.
+
+Now each environment uses an `ApplicationSet`, which is a more scalable pattern and better matches production-style GitOps design.
+
+This makes it easier to:
+- expand to more applications later
+- standardize environment deployment patterns
+- reduce repeated Argo CD application definitions
+
+### Current flow
+
+1. cluster root app points to `platform/<env>`
+2. `platform/<env>/kustomization.yaml` includes `sample-appset.yaml`
+3. the `ApplicationSet` generates the Argo CD Application for that environment
+4. Helm uses the correct values file:
+   - dev → `values-dev.yaml`
+   - stage → `values-stage.yaml`
+   - prod → `values-prod.yaml`
