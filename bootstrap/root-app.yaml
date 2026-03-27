@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/ioaneN/gitops-platform-argocd.git
     targetRevision: master
-    path: clusters/dev
+    path: clusters
     directory:
       recurse: true
   destination:

@@ -14,7 +14,7 @@ spec:
         - values-dev.yaml
   destination:
     name: in-cluster
-    namespace: sample-app
+    namespace: sample-app-dev
   syncPolicy:
     automated:
       prune: true

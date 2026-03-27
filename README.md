@@ -98,3 +98,32 @@ Deployment flow:
 4. `sample-app-dev` is created and deploys the Helm chart from `apps/sample-app`
 
 This phase establishes the first end-to-end GitOps application deployment in the dev environment.
+
+
+## Phase 5: Stage and prod environments
+
+Phase 5 expands the GitOps platform from a single dev environment to a multi-environment structure with separate stage and prod delivery paths.
+
+What was added:
+
+- `clusters/stage` and `clusters/prod` GitOps entrypoints
+- `platform/stage` and `platform/prod` Argo CD Applications
+- `values-stage.yaml` and `values-prod.yaml` for Helm-based environment configuration
+- isolated namespaces for dev, stage, and prod deployments in the same cluster
+- root app expansion from `clusters/dev` to the full `clusters/` hierarchy
+
+Environment layout:
+
+- `dev` → `sample-app-dev`
+- `stage` → `sample-app-stage`
+- `prod` → `sample-app-prod`
+
+Bootstrap flow after phase 5:
+
+1. `bootstrap/root-app.yaml` is applied once
+2. Argo CD scans `clusters/`
+3. Argo CD creates child Applications for dev, stage, and prod
+4. each environment points to its own platform path
+5. each platform Application deploys the same Helm chart with different values files
+
+This phase establishes the multi-environment GitOps structure that will later be simplified with ApplicationSets in phase 6.

@@ -1,6 +1,6 @@
-namespace: sample-app-dev
+namespace: sample-app-stage
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: nginx
@@ -16,4 +16,4 @@ containerPort: 80
 resources: {}
 
 labels:
-  environment: dev
+  environment: stage
