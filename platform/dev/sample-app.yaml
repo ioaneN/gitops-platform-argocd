@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-app-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ioaneN/gitops-platform-argocd.git
+    targetRevision: master
+    path: apps/sample-app
+    helm:
+      valueFiles:
+        - values-dev.yaml
+  destination:
+    name: in-cluster
+    namespace: sample-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

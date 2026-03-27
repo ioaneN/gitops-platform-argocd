@@ -81,3 +81,20 @@ What was added:
 - a clean packaging model for Argo CD application delivery in later phases
 
 This phase establishes the application packaging layer that will be deployed into dev in the next phase.
+
+## Phase 4: Dev environment deployment
+
+Phase 4 deploys the first real workload into the dev environment through Argo CD.
+
+What was added:
+- a dev-specific Helm values file for the sample application
+- a child Argo CD Application in `platform/dev`
+- automated sync for the sample app into the `sample-app` namespace
+
+Deployment flow:
+1. `root-app` syncs `clusters/dev`
+2. `platform-root` is created from `clusters/dev/apps/platform-root.yaml`
+3. `platform-root` reads the `platform/dev` path
+4. `sample-app-dev` is created and deploys the Helm chart from `apps/sample-app`
+
+This phase establishes the first end-to-end GitOps application deployment in the dev environment.
