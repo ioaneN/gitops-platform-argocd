@@ -177,3 +177,23 @@ Why this matters:
 * application workloads still live under `platform/dev`, `platform/stage`, and `platform/prod`
 * shared services should be installed once per cluster, not once per environment
 * this creates a cleaner production-style GitOps structure for later phases like sync waves, RBAC, secrets, and monitoring
+
+## Phase 8: Sync waves / ordering / dependency flow
+
+Phase 8 introduces explicit deployment ordering between environment bootstrap resources and workload applications.
+
+What was added:
+
+- a `platform-bootstrap` Application for each environment
+- environment-specific namespace bootstrap manifests under `platform/bootstrap/`
+- sync-wave annotations to make dependency ordering visible
+- removal of `CreateNamespace=true` from generated sample app Applications so namespace creation is handled by the bootstrap layer
+
+Dependency flow:
+
+1. root app syncs the cluster entrypoints
+2. platform root syncs the environment platform path
+3. `platform-bootstrap-*` runs first with sync wave `-10`
+4. ApplicationSet-generated sample apps run after with sync wave `10`
+
+This phase establishes a more production-style GitOps reconciliation model where foundational environment resources are applied before application workloads.
